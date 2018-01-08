@@ -14,8 +14,8 @@ def solve(instructions):
         instruction = instructions[step]
         operation = instruction[0]
         register = instruction[1] # register can also be just a value.
-        print(instruction)
-        print("a {} b {} p {} i {} f {}".format(a,b,p,i,f))
+        #print(instruction)
+        #print("a {} b {} p {} i {} f {}".format(a,b,p,i,f))
         performedJump = False
         if operation == "set":
             val = getValue(instruction[2])

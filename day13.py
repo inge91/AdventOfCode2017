@@ -12,6 +12,15 @@ class Layer:
         self.direction = Direction.DOWN
         self.scanner_pos = 1
 
+    def printState(self):
+        for i in range(self.max_range):
+            if(self.scanner_pos - 1 == i):
+                print("S ", end='')
+            else:
+                print("_ ", end='')
+        print()
+            
+
     def update_scanner_pos(self):
         if self.direction == Direction.DOWN:
             if self.scanner_pos < self.max_range:
@@ -33,105 +42,78 @@ def calculate_severity(layers, pos):
     return (False, 0)
 
 
-def solve(layers):
-    l = []
-    for layer in layers:
-        l.append(Layer(layer[0], layer[1]))
 
-    severity = 0
-
-    current_pos = 0
-    while current_pos < 98:
-        severity += calculate_severity(l, current_pos)
-        for layer in l:
-            layer.update_scanner_pos()
-        current_pos += 1
-
-    print(severity)
-        
-
-def wait(l, picoseconds_to_wait):
+def wait(l, picoseconds_to_wait, verbose = False):
     for i in range(0, picoseconds_to_wait):
         for layer in l:
             layer.update_scanner_pos()
+        if verbose:
+            print_state(l, 0)
 
-def solve2(layers):
-    l = []
-    for layer in layers:
-        l.append(Layer(layer[0], layer[1]))
+def print_state(l, pos):
+    i = 0
+    count = 0
+    while i <= l[-1].index:
+        if i < l[count].index:
+            if pos == i:
+                print("x")
+            else:
+                print(".")
+        else:
+            if pos == i:
+                print("x", end="")
+            l[count].printState()
+            count += 1
+        i+=1
+    print()
 
+def solve(l, picoseconds_waited = 0, verbose = False):
+    wall_size = l[-1].index
+    severity = 0
+    current_pos = 0
+    wait(l, picoseconds_waited, False)
+    been_hit = False
+    while current_pos <= wall_size:
+        hit, hit_severity = calculate_severity(l, current_pos)
+        if verbose:
+            print_state(l, current_pos)
+        if not been_hit and hit:
+            been_hit = True
+        severity += hit_severity
+        for layer in l:
+            layer.update_scanner_pos()
+        current_pos += 1
+    if verbose:
+        print_state(l, current_pos)
+    return been_hit, severity
+        
+def hit(l, wait):
+    for layer in l:
+        steps = (layer.max_range-1) * 2
+        if (layer.index + wait) % steps == 0:
+            return True
+    return False 
+
+def solve3(l):
     picoseconds_waited = 0
-    while True: 
-        l2 = copy.deepcopy(l)
-        wait(l2, picoseconds_waited)
-        current_pos = 0
-        severity = 0
-        while current_pos <= 98:
-           # print("pos")
-           # print(current_pos)
-           # print("layers")
-           # for layer in l2:
-           #     print(layer.scanner_pos)
-            (is_hit, hit_severity) = calculate_severity(l2, current_pos)
-            if is_hit:
-                severity += hit_severity
-                break
-            for layer in l2:
-                layer.update_scanner_pos()
-            current_pos += 1
-        if not is_hit:
+    while True:
+        if hit(l, picoseconds_waited):
+            picoseconds_waited += 1
+        else:
+            #solve(l, picoseconds_waited, True)
+            print("Solved: ")
             print(picoseconds_waited)
             break
-        picoseconds_waited += 1
-        
 
-
+def parseInput(f):
+    layer_list = []
+    layers = open(f)
+    for layer in layers:
+        layer = layer.rstrip("\n").split(": ")
+        layer_list.append(Layer(int(layer[0]), int(layer[1])))
+    return layer_list 
 
 if __name__ == "__main__":
-    solve2(
-[[0, 3],
-[1, 2],
-[2, 4],
-[4, 4],
-[6, 5],
-[8, 6],
-[10, 8],
-[12, 8],
-[14, 6],
-[16, 6],
-[18, 8],
-[20, 8],
-[22, 6],
-[24, 12],
-[26, 9],
-[28, 12],
-[30, 8],
-[32, 14],
-[34, 12],
-[36, 8],
-[38, 14],
-[40, 12],
-[42, 12],
-[44, 12],
-[46, 14],
-[48, 12],
-[50, 14],
-[52, 12],
-[54, 10],
-[56, 14],
-[58, 12],
-[60, 14],
-[62, 14],
-[66, 10],
-[68, 14],
-[74, 14],
-[76, 12],
-[78, 14],
-[80, 20],
-[86, 18],
-[92, 14],
-[94, 20],
-[96, 18],
-[98, 17]])
-
+    layers = parseInput("day13.txt")
+    solve3(layers)
 

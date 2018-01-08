@@ -1,0 +1,26 @@
+b = 93
+c = b
+if a != 0:
+    b *= 100
+    b += 100000
+    c = b
+    c += 17000
+while True: 1000 x
+    f = 1
+    d = 2
+    while True:
+        e = 2
+        while True:
+            if e*d == b:  # e*d == 109300
+               f = 0
+            e += 1 
+            if e == b: e == 109300
+                break
+        d += 1
+        if d == b:
+            break
+    if f == 0:
+        h += 1
+    if b == c:
+        return 
+    b += 17  # 100 x
